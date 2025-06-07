@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Avisos de Renovación</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for animations if needed, otherwise Tailwind handles most */
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.5s ease-out forwards;
+        }
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter font as per instructions */
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 p-4 font-sans flex flex-col items-center justify-center">
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-4xl mb-8 border border-orange-200">
+        <h1 class="text-4xl font-extrabold text-center text-orange-700 mb-6 drop-shadow-sm">
+            Aviso de Renovación 🚀
+        </h1>
+        <p class="text-center text-gray-700 mb-8">
+            Completa los campos para generar tu mensaje de renovación de cuenta.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div>
+                <label for="serviceName" class="block text-sm font-medium text-gray-700 mb-1">
+                    Nombre del Servicio
+                </label>
+                <select
+                    id="serviceName"
+                    class="mt-1 block w-full p-3 border border-orange-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-white text-gray-800"
+                >
+                    <option value="">Selecciona un servicio</option>
+                    <option value="Netflix">Netflix</option>
+                    <option value="Amazon Prime Video">Amazon Prime Video</option>
+                    <option value="Vix">Vix</option>
+                    <option value="Max">Max</option>
+                    <option value="FLUJOTV">FLUJOTV</option>
+                    <option value="CRUNCHYROLL">CRUNCHYROLL</option>
+                    <option value="PARAMOUNT">PARAMOUNT</option>
+                    <option value="Otro">Otro (Especificar en el campo de servicio)</option>
+                </select>
+            </div>
+            <div>
+                <label for="dueDate" class="block text-sm font-medium text-gray-700 mb-1">
+                    Fecha de Vencimiento (Hoy)
+                </label>
+                <input
+                    type="date"
+                    id="dueDate"
+                    class="mt-1 block w-full p-3 border border-orange-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-white text-gray-800"
+                />
+            </div>
+            <div class="md:col-span-2">
+                <label for="clientEmail" class="block text-sm font-medium text-gray-700 mb-1">
+                    Correo Electrónico de la Cuenta
+                </label>
+                <input
+                    type="email"
+                    id="clientEmail"
+                    class="mt-1 block w-full p-3 border border-orange-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-white text-gray-800"
+                    placeholder="Ej: xgvb4.usa@motsit.com"
+                />
+            </div>
+            <div class="md:col-span-2">
+                <label for="accountDetails" class="block text-sm font-medium text-gray-700 mb-1">
+                    Datos Adicionales de la Cuenta (Opcional)
+                </label>
+                <textarea
+                    id="accountDetails"
+                    rows="2"
+                    class="mt-1 block w-full p-3 border border-orange-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-white text-gray-800"
+                    placeholder="Ej: 1, 2, 4, 6, 7 (se convertirán a Pantalla X)"
+                ></textarea>
+            </div>
+        </div>
+
+        <div class="flex justify-center">
+            <button
+                id="copyButton"
+                class="flex items-center justify-center px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg shadow-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition duration-300 transform hover:scale-105"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 mr-2"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                >
+                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2H6zM5 9a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" />
+                </svg>
+                Copiar Mensaje
+            </button>
+            <span id="copyStatus" class="ml-4 p-2 bg-amber-100 text-amber-700 rounded-lg text-sm items-center animate-fade-in hidden">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4 mr-1"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                >
+                    <path
+                        fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd"
+                    />
+                </svg>
+                ¡Copiado!
+            </span>
+        </div>
+    </div>
+
+    <!-- Display area for the generated message -->
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-4xl border border-orange-200">
+        <h2 class="text-2xl font-bold text-orange-700 mb-4">Mensaje Generado:</h2>
+        <div id="generatedMessageDisplay" class="p-6 bg-orange-50 rounded-lg border border-orange-300 overflow-auto whitespace-pre-wrap leading-relaxed text-gray-800 text-sm">
+            <!-- Message will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get references to HTML elements
+            const serviceNameSelect = document.getElementById('serviceName');
+            const dueDateInput = document.getElementById('dueDate');
+            const clientEmailInput = document.getElementById('clientEmail');
+            const accountDetailsTextarea = document.getElementById('accountDetails');
+            const generatedMessageDisplay = document.getElementById('generatedMessageDisplay');
+            const copyButton = document.getElementById('copyButton');
+            const copyStatusSpan = document.getElementById('copyStatus');
+
+            // Function to format the date for display in the message
+            const formatDueDate = (dateString) => {
+                if (!dateString) return '';
+                const [year, month, day] = dateString.split('-');
+                const date = new Date(year, month - 1, day); // Month is 0-indexed
+                return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+            };
+
+            // Function to process account details, replacing sequences of numbers 1-7 with "Pantalla X"
+            const processAccountDetails = (details) => {
+                if (!details) return '';
+
+                let result = '';
+                let currentScreenDigits = '';
+                let i = 0;
+
+                while (i < details.length) {
+                    const char = details[i];
+                    const isScreenDigit = char >= '1' && char <= '7';
+
+                    if (isScreenDigit) {
+                        currentScreenDigits += char;
+                    } else {
+                        if (currentScreenDigits.length > 0) {
+                            result += currentScreenDigits.split('').map(d => `Pantalla ${d}`).join(', ');
+                            currentScreenDigits = '';
+                        }
+                        result += char;
+                    }
+                    i++;
+                }
+
+                if (currentScreenDigits.length > 0) {
+                    result += currentScreenDigits.split('').map(d => `Pantalla ${d}`).join(', ');
+                }
+
+                return result;
+            };
+
+            // Function to generate the renewal message
+            const generateMessage = () => {
+                const serviceName = serviceNameSelect.value || '[Nombre del Servicio]';
+                const dueDate = dueDateInput.value;
+                const clientEmail = clientEmailInput.value || '[Correo de la Cuenta]';
+                const accountDetails = accountDetailsTextarea.value;
+
+                const formattedDueDate = formatDueDate(dueDate);
+                const processedAccountDetails = processAccountDetails(accountDetails);
+
+                const messageHtml = `
+                    🔔 ¡No te Quedes Sin tu <strong>Entretenimiento</strong>! 🔔
+                    <br/><br/>
+                    ¡<strong>Atención</strong>! 👋
+                    <br/><br/>
+                    Tu cuenta de <strong>${serviceName}</strong> vence <strong>HOY, ${formattedDueDate}</strong> 🗓️.
+                    <br/><br/>
+                    Para evitar la <strong>suspensión o eliminación</strong>, es <strong>IMPRESCINDIBLE</strong> que renueves <strong>HOY MISMO</strong>. 🚫
+                    <br/><br/>
+                    La renovación se hará con tu correo: <strong>${clientEmail}</strong>.
+                    ${processedAccountDetails ? `<br/><strong>Datos de tu cuenta:</strong> ${processedAccountDetails}` : ''} Recibirás una <strong>NUEVA clave de acceso</strong> por seguridad. 🔑
+                    <br/><br/>
+                    <strong>¿Ya pagaste? ¡Ignora este mensaje y sigue disfrutando!</strong> ✅
+                    <br/>De lo contrario, ¡no pierdas esta <strong>última oportunidad</strong>! ✨
+                    <br/>---<br/>
+                    ¡Esperamos verte pronto conectado!
+                    <br/>Saludos cordiales, Tu plataforma de confianza <strong>VENDE Y GANA</strong>.
+                `;
+                generatedMessageDisplay.innerHTML = messageHtml.trim();
+            };
+
+            // Function to copy the generated message to the clipboard
+            const copyToClipboard = () => {
+                const range = document.createRange();
+                range.selectNodeContents(generatedMessageDisplay);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                
+                try {
+                    document.execCommand('copy');
+                    copyStatusSpan.classList.remove('hidden');
+                    setTimeout(() => copyStatusSpan.classList.add('hidden'), 2000);
+                } catch (err) {
+                    console.error('Error al copiar el mensaje:', err);
+                    // Fallback for cases where execCommand fails (e.g., some browsers/environments)
+                    // You might consider a custom message box here instead of alert
+                } finally {
+                    selection.removeAllRanges(); // Deselect
+                }
+            };
+
+            // Add event listeners
+            serviceNameSelect.addEventListener('change', generateMessage);
+            dueDateInput.addEventListener('input', generateMessage);
+            clientEmailInput.addEventListener('input', generateMessage);
+            accountDetailsTextarea.addEventListener('input', generateMessage);
+            copyButton.addEventListener('click', copyToClipboard);
+
+            // Initial message generation when the page loads
+            generateMessage();
+        });
+    </script>
+</body>
+</html>
