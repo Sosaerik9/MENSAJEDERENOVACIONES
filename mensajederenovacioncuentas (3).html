@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generador de Avisos de Renovación</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* Custom styles for animations if needed, otherwise Tailwind handles most */
         @keyframes fade-in {
@@ -84,7 +84,16 @@
             </div>
         </div>
 
-        <div class="flex justify-center">
+        <div class="flex justify-center items-center">
+            <button
+                id="generateButton"
+                class="flex items-center justify-center px-6 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-300 transform hover:scale-105 mr-4"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.898 0V3a1 1 0 112 0v2.101a7.002 7.002 0 01-11.898 0V3a1 1 0 01-1-1zM10 4a5 5 0 00-4.546 2.916.5.5 0 01-.908-.416A6 6 0 0110 3a6 6 0 015.454 3.499.5.5 0 11-.908.417A5 5 0 0010 4zM3 9a2 2 0 012-2h10a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" clip-rule="evenodd" />
+                </svg>
+                Generar Mensaje
+            </button>
             <button
                 id="copyButton"
                 class="flex items-center justify-center px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg shadow-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition duration-300 transform hover:scale-105"
@@ -100,29 +109,27 @@
                 </svg>
                 Copiar Mensaje
             </button>
-            <span id="copyStatus" class="ml-4 p-2 bg-amber-100 text-amber-700 rounded-lg text-sm items-center animate-fade-in hidden">
-                <svg
+            <span id="copyStatus" class="ml-4 p-2 bg-amber-100 text-amber-700 rounded-lg text-sm items-center animate-fade-in hidden" style="display: none;">
+                 <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4 mr-1"
+                    class="h-4 w-4 mr-1 inline-block"
                     viewBox="0 0 20 20"
                     fill="currentColor"
-                >
+                 >
                     <path
                         fill-rule="evenodd"
                         d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                         clip-rule="evenodd"
                     />
-                </svg>
+                 </svg>
                 ¡Copiado!
             </span>
         </div>
     </div>
 
-    <!-- Display area for the generated message -->
     <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-4xl border border-orange-200">
         <h2 class="text-2xl font-bold text-orange-700 mb-4">Mensaje Generado:</h2>
         <div id="generatedMessageDisplay" class="p-6 bg-orange-50 rounded-lg border border-orange-300 overflow-auto whitespace-pre-wrap leading-relaxed text-gray-800 text-sm">
-            <!-- Message will be displayed here -->
         </div>
     </div>
 
@@ -134,12 +141,20 @@
             const clientEmailInput = document.getElementById('clientEmail');
             const accountDetailsTextarea = document.getElementById('accountDetails');
             const generatedMessageDisplay = document.getElementById('generatedMessageDisplay');
+            const generateButton = document.getElementById('generateButton'); // New button
             const copyButton = document.getElementById('copyButton');
             const copyStatusSpan = document.getElementById('copyStatus');
 
+            // Set today's date in the date input
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            dueDateInput.value = `${year}-${month}-${day}`;
+            
             // Function to format the date for display in the message
             const formatDueDate = (dateString) => {
-                if (!dateString) return '';
+                if (!dateString) return '[Fecha de Vencimiento]';
                 const [year, month, day] = dateString.split('-');
                 const date = new Date(year, month - 1, day); // Month is 0-indexed
                 return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
@@ -148,32 +163,8 @@
             // Function to process account details, replacing sequences of numbers 1-7 with "Pantalla X"
             const processAccountDetails = (details) => {
                 if (!details) return '';
-
-                let result = '';
-                let currentScreenDigits = '';
-                let i = 0;
-
-                while (i < details.length) {
-                    const char = details[i];
-                    const isScreenDigit = char >= '1' && char <= '7';
-
-                    if (isScreenDigit) {
-                        currentScreenDigits += char;
-                    } else {
-                        if (currentScreenDigits.length > 0) {
-                            result += currentScreenDigits.split('').map(d => `Pantalla ${d}`).join(', ');
-                            currentScreenDigits = '';
-                        }
-                        result += char;
-                    }
-                    i++;
-                }
-
-                if (currentScreenDigits.length > 0) {
-                    result += currentScreenDigits.split('').map(d => `Pantalla ${d}`).join(', ');
-                }
-
-                return result;
+                // Replaces any digit from 1 to 7 with "Pantalla {digit}"
+                return details.replace(/([1-7])/g, 'Pantalla $1').replace(/, /g, ', ').trim();
             };
 
             // Function to generate the renewal message
@@ -185,54 +176,61 @@
 
                 const formattedDueDate = formatDueDate(dueDate);
                 const processedAccountDetails = processAccountDetails(accountDetails);
+                
+                // Using template literals and trim() to manage whitespace for cleaner copy-paste
+                const messageText = `
+🔔 ¡No te Quedes Sin tu *Entretenimiento*! 🔔
+¡*Atención*! 👋
+Tu cuenta de *${serviceName}* vence *HOY, ${formattedDueDate}* 🗓️.
+Para evitar la *suspensión o eliminación*, es *IMPRESCINDIBLE* que renueves *HOY MISMO*. 🚫
+La renovación se hará con tu correo: *${clientEmail}*.
+${processedAccountDetails ? `*Datos de tu cuenta:* ${processedAccountDetails}\n` : ''}Recibirás una *NUEVA clave de acceso* por seguridad. 🔑
+*¿Ya pagaste? ¡Ignora este mensaje y sigue disfrutando!* ✅
+De lo contrario, ¡no pierdas esta *última oportunidad*! ✨
 
-                const messageHtml = `
-                    🔔 ¡No te Quedes Sin tu <strong>Entretenimiento</strong>! 🔔
-                    <br/><br/>
-                    ¡<strong>Atención</strong>! 👋
-                    <br/><br/>
-                    Tu cuenta de <strong>${serviceName}</strong> vence <strong>HOY, ${formattedDueDate}</strong> 🗓️.
-                    <br/><br/>
-                    Para evitar la <strong>suspensión o eliminación</strong>, es <strong>IMPRESCINDIBLE</strong> que renueves <strong>HOY MISMO</strong>. 🚫
-                    <br/><br/>
-                    La renovación se hará con tu correo: <strong>${clientEmail}</strong>.
-                    ${processedAccountDetails ? `<br/><strong>Datos de tu cuenta:</strong> ${processedAccountDetails}` : ''} Recibirás una <strong>NUEVA clave de acceso</strong> por seguridad. 🔑
-                    <br/><br/>
-                    <strong>¿Ya pagaste? ¡Ignora este mensaje y sigue disfrutando!</strong> ✅
-                    <br/>De lo contrario, ¡no pierdas esta <strong>última oportunidad</strong>! ✨
-                    <br/>---<br/>
-                    ¡Esperamos verte pronto conectado!
-                    <br/>Saludos cordiales, Tu plataforma de confianza <strong>VENDE Y GANA</strong>.
-                `;
-                generatedMessageDisplay.innerHTML = messageHtml.trim();
+¡Esperamos verte pronto conectado!
+Saludos cordiales, Tu plataforma de confianza *VENDE Y GANA*.
+                `.trim();
+
+                // For display in the preview div, replace newlines with <br> and format markdown bold
+                const messageHtmlForDisplay = messageText
+                    .replace(/\n/g, '<br/>')
+                    .replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+
+                generatedMessageDisplay.innerHTML = messageHtmlForDisplay;
+                generatedMessageDisplay.dataset.rawMessage = messageText; // Store raw text for copying
             };
 
             // Function to copy the generated message to the clipboard
             const copyToClipboard = () => {
-                const range = document.createRange();
-                range.selectNodeContents(generatedMessageDisplay);
-                const selection = window.getSelection();
-                selection.removeAllRanges();
-                selection.addRange(range);
+                const textToCopy = generatedMessageDisplay.dataset.rawMessage || generatedMessageDisplay.innerText;
                 
+                // Using the document.execCommand('copy') method as it is more reliable in sandboxed environments like iframes.
                 try {
+                    const tempTextArea = document.createElement('textarea');
+                    // Styling to prevent the textarea from being visible
+                    tempTextArea.style.position = 'absolute';
+                    tempTextArea.style.left = '-9999px';
+                    tempTextArea.value = textToCopy;
+                    document.body.appendChild(tempTextArea);
+                    tempTextArea.select();
                     document.execCommand('copy');
-                    copyStatusSpan.classList.remove('hidden');
-                    setTimeout(() => copyStatusSpan.classList.add('hidden'), 2000);
+                    document.body.removeChild(tempTextArea);
+                    
+                    // Show success message
+                    copyStatusSpan.style.display = 'inline-flex';
+                    setTimeout(() => {
+                        copyStatusSpan.style.display = 'none';
+                    }, 2000);
+
                 } catch (err) {
                     console.error('Error al copiar el mensaje:', err);
-                    // Fallback for cases where execCommand fails (e.g., some browsers/environments)
-                    // You might consider a custom message box here instead of alert
-                } finally {
-                    selection.removeAllRanges(); // Deselect
+                    // Do not use alert() as it's a bad practice and might be blocked.
                 }
             };
 
             // Add event listeners
-            serviceNameSelect.addEventListener('change', generateMessage);
-            dueDateInput.addEventListener('input', generateMessage);
-            clientEmailInput.addEventListener('input', generateMessage);
-            accountDetailsTextarea.addEventListener('input', generateMessage);
+            generateButton.addEventListener('click', generateMessage); // New listener
             copyButton.addEventListener('click', copyToClipboard);
 
             // Initial message generation when the page loads
